@@ -9,13 +9,13 @@ class GameState():
         #"--" represents an empty space with no piece
         self.board = [
             ["bR", "bN","bB", "bQ", "bK", "bB","bN","bR"],
-            ["br", "bn","bb", "bq", "bk", "bb","bn","br"],
+            ["bp", "bp","bp", "bp", "bp", "bp","bp","bp"],
             ["--", "--","--", "--", "--", "--","--","--"],
             ["--", "--","--", "--", "--", "--","--","--"],
             ["--", "--","--", "--", "--", "--","--","--"],
             ["--", "--","--", "--", "--", "--","--","--"],
+            ["wp", "wp","wp", "wp", "wp", "wp","wp","wp"],
             ["wR", "wN","wB", "wQ", "wK", "wB","wN","wR"],
-            ["wr", "wn","wb", "wq", "wk", "wb","wn","wr"],
         ]
         self.whiteToMove = True
         self.moveLog = []
