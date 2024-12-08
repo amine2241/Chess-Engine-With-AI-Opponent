@@ -32,6 +32,7 @@ class GameState():
 # for now it doesn't work for en passant and casteling 
     def makeMove(self, move):
         self.board[move.startRow][move.startCol] = "--"
+        print(self.moveLog)
         self.board[move.endRow][move.endCol] = move.pieceMoved
         self.moveLog.append(move) #history of moves
         self.whiteToMove = not self.whiteToMove #swap player turns
@@ -39,7 +40,12 @@ class GameState():
         if move.pieceMoved =='wK': 
             self.whiteKingLocation  = (move.startRow, move.startCol)
         if move.pieceMoved =='bK': 
-            self.blackKingLocation  = (move.startRow, move.startCol)    
+            self.blackKingLocation  = (move.startRow, move.startCol)  
+        print("I am called")  
+        #pawn promotion 
+        if move.isPawnPromotion: 
+            print("I am called")
+            self.board[move.endRow][move.endCol] == move.pieceMoved[0] +'Q'
     def undoMove(self):
         print("hdbieb")
         print(len(self.moveLog))
@@ -224,6 +230,12 @@ class Move():
         self.endCol= endSq[1]
         self.pieceMoved= board[self.startRow][self.startCol]
         self.pieceCaptured= board[self.endRow][self.endCol]
+        self.isPawnPromotion = False
+        # print("self.startrow:", self.startRow ,"self.startcol",self.startCol)
+        if (self.pieceMoved =='wp' and self.endRow==0 ) or (self.pieceMoved =='bp' and self.endRow==7): 
+            print("arcane")
+            self.isPawnPromotion = True 
+
         self.moveID= self.startRow*1000 + self.startCol*100 + self.endRow*10 + self.endCol
     '''
     Overriding the equals method
