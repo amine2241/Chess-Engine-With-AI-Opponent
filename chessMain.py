@@ -45,16 +45,18 @@ def main():
                 else:
                     sqSelected=(row,col)
                     playerClicks.append(sqSelected) #append for first click (the piece) and the second the second (where you want to move the piece)
-                    if len(playerClicks)==2: #after the second click
-                        move = chessEngine.Move(playerClicks[0],playerClicks[1],gs.board)
-                        print(move.getChessNotation())
-                        for i in range (len(validMoves)):
-                            if move==validMoves[i]: 
-                                gs.makeMove(validMoves[i])
-                                moveMade = True
-                                sqSelected =() #reset for next move
-                                playerClicks=[]
-                        if not moveMade: 
+                    print("plus 1 click")
+                if len(playerClicks)==2: #after the second click
+                    print("vzezevzv")
+                    move = chessEngine.Move(playerClicks[0],playerClicks[1],gs.board)
+                    print(move.getChessNotation())
+                    for i in range(len(validMoves)):
+                        if move == validMoves[i]:
+                            gs.makeMove(validMoves[i])
+                            moveMade = True
+                            sqSelected =() #reset for next move
+                            playerClicks=[]
+                        if not moveMade:
                             playerClicks=[sqSelected]
             #if user click on z it undos move             
             elif e.type == p.KEYDOWN:

@@ -32,26 +32,21 @@ class GameState():
 # for now it doesn't work for en passant and casteling 
     def makeMove(self, move):
         self.board[move.startRow][move.startCol] = "--"
-        print(self.moveLog)
         self.board[move.endRow][move.endCol] = move.pieceMoved
         self.moveLog.append(move) #history of moves
         self.whiteToMove = not self.whiteToMove #swap player turns
         #update the king's location if needed
         if move.pieceMoved =='wK': 
-            self.whiteKingLocation  = (move.startRow, move.startCol)
+            self.whiteKingLocation  = (move.endRow, move.endCol)
         if move.pieceMoved =='bK': 
-            self.blackKingLocation  = (move.startRow, move.startCol)  
-        print("I am called")  
+            self.blackKingLocation  = (move.endRow, move.endCol)  
         #pawn promotion 
         if move.isPawnPromotion: 
-            print("I am called")
-            self.board[move.endRow][move.endCol] == move.pieceMoved[0] +'Q'
+            self.board[move.endRow][move.endCol] = move.pieceMoved[0] +'Q'
+
     def undoMove(self):
-        print("hdbieb")
-        print(len(self.moveLog))
         #check if there is any move to udo 
         if len(self.moveLog)!=0: 
-            print("mr beast")
             move = self.moveLog.pop()
             #opposite of make move
             self.board[move.startRow][move.startCol] = move.pieceMoved
@@ -231,7 +226,7 @@ class Move():
         self.pieceMoved= board[self.startRow][self.startCol]
         self.pieceCaptured= board[self.endRow][self.endCol]
         self.isPawnPromotion = False
-        # print("self.startrow:", self.startRow ,"self.startcol",self.startCol)
+        print(self.pieceMoved)
         if (self.pieceMoved =='wp' and self.endRow==0 ) or (self.pieceMoved =='bp' and self.endRow==7): 
             print("arcane")
             self.isPawnPromotion = True 
