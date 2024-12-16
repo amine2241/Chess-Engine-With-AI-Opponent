@@ -285,13 +285,14 @@ class GameState():
                 moves.remove(moves[i]) 
             self.whiteToMove = not self.whiteToMove #switch back to current 
             self.undoMove()    #cancels make move
-            if len(moves)==0 : 
-                self.checkMate= True 
+            if len(moves)==0 :
+                if self.inCheck(): 
+                    self.checkMate= True 
+                else: 
+                    self.staleMate = True
             else : 
-                self.staleMate = True
-        else : 
-            self.checkMate =False
-            self.staleMate = False    
+                self.checkMate =False
+                self.staleMate = False    
 
         self.enpassantPossible=TempEnpassantPossible
         self.currentCastlingRight=TempCastleRights
