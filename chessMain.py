@@ -1,5 +1,7 @@
 import pygame as p 
 import chessEngine
+import chess
+from Model.opponent import Model_makeMove
 
 WIDTH  = HEIGHT = 512
 DIMENSION = 8  # dimensions of a chess board are 8*8
@@ -18,6 +20,89 @@ def loadImages ():
 '''
 The main driver for our code. This will handle user input and update the graphics
 '''
+
+def array_to_fen(board):
+    # Dictionary to convert piece notation
+    piece_conversion = {
+        'bR': 'r', 'bN': 'n', 'bB': 'b', 'bQ': 'q', 'bK': 'k',
+        'wR': 'R', 'wN': 'N', 'wB': 'B', 'wQ': 'Q', 'wK': 'K',
+        'bp': 'p', 'wp': 'P', '--': ''
+    }
+    
+    fen_parts = []
+    
+    # Convert board position
+    for row in board:
+        empty_count = 0
+        fen_row = ''
+        
+        for piece in row:
+            if piece == '--':
+                empty_count += 1
+            else:
+                if empty_count > 0:
+                    fen_row += str(empty_count)
+                    empty_count = 0
+                fen_row += piece_conversion[piece]
+        
+        if empty_count > 0:
+            fen_row += str(empty_count)
+            
+        fen_parts.append(fen_row)
+    
+    # Join rows with '/'
+    position = '/'.join(fen_parts)
+    
+    # Add additional FEN fields (assuming initial position)
+    # Active color: w (White to move)
+    # Castling availability: KQkq (All castling rights available)
+    # En passant target square: - (No en passant possible)
+    # Halfmove clock: 0
+    # Fullmove number: 1
+    return f"{position} b KQkq - 0 1"
+
+def chess_to_coords(move):
+    """
+    Convert chess notation (e.g. 'a2a3') to list of coordinates [(from_row, from_col), (to_row, to_col)]
+    
+    Args:
+        move (str): Move in chess notation (e.g. 'a2a3')
+        
+    Returns:
+        list: List containing two tuples of (row, col) coordinates
+    """
+    # Chess files (columns) mapping: a-h -> 0-7
+    files = {'a': 0, 'b': 1, 'c': 2, 'd': 3, 'e': 4, 'f': 5, 'g': 6, 'h': 7}
+    
+    # Extract components of the move
+    from_file = move[0]  # First character (file)
+    from_rank = int(move[1])  # Second character (rank)
+    to_file = move[2]    # Third character (file)
+    to_rank = int(move[3])  # Fourth character (rank)
+    
+    # Convert to board coordinates (0-7, 0-7)
+    # Subtract rank from 8 because board coordinates are zero-based from the top
+    from_coords = (8 - from_rank, files[from_file])
+    to_coords = (8 - to_rank, files[to_file])
+    
+    return [from_coords, to_coords]
+
+def modelMove(gs,validMoves):
+    ModelMove= Model_makeMove(array_to_fen(gs.board))
+    playerClicks=chess_to_coords(str(ModelMove))
+
+    print(f"Model's move: {ModelMove} aka {playerClicks}")
+
+    move = chessEngine.Move(playerClicks[0],playerClicks[1],gs.board)
+
+    for i in range(len(validMoves)):
+        if move == validMoves[i]:
+            gs.makeMove(validMoves[i])
+            moveMade = True
+            animate = True 
+            sqSelected =() #reset for next move
+            playerClicks=[]     
+
 def main(): 
     p.init() 
     screen = p.display.set_mode((WIDTH, HEIGHT))
@@ -32,7 +117,7 @@ def main():
     running = True 
     sqSelected =() #no square is selected initialy, to keep track of the last mouse click : (row,col)
     playerClicks=[] #keep track of player clicks : [(6,4),(4,4)]
-    gameOver = False 
+    gameOver = False
     while running : 
         for e in p.event.get():    
             if e.type == p.QUIT: 
@@ -54,6 +139,7 @@ def main():
                         print("vzezevzv")
                         move = chessEngine.Move(playerClicks[0],playerClicks[1],gs.board)
                         print(move.getChessNotation())
+
                         for i in range(len(validMoves)):
                             if move == validMoves[i]:
                                 gs.makeMove(validMoves[i])
@@ -63,6 +149,8 @@ def main():
                                 playerClicks=[]
                             if not moveMade:
                                 playerClicks=[sqSelected]
+  
+
             #if user click on z it undos move             
             elif e.type == p.KEYDOWN:
                 if e.key ==p.K_z: 
@@ -75,13 +163,17 @@ def main():
                     sqSelected = ()
                     playerClicks = []
                     moveMade = False 
-                    animate = False    
+                    animate = False 
+
         if moveMade: 
             if animate:
                 animateMove(gs.moveLog[-1], screen, gs.board, clock)
             validMoves = gs.getValidMoves()
+            modelMove(gs,validMoves)
+            validMoves = gs.getValidMoves()
             moveMade = False
-            animate = False                    
+            animate = False
+                    
 
         drawGameState(screen, gs,validMoves, sqSelected)
         if gs.checkMate: 

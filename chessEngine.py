@@ -255,14 +255,16 @@ class GameState():
             self.getQueensideCastleMoves(r, c, moves)
 
     def getKingsideCastleMoves(self, r, c, moves):
-        if self.board[r][c+1]=='--' and self.board[r][c+2]=='--':
-            if not self.squareUnderAttack(r, c+1) and not  self.squareUnderAttack(r, c+2):
-                moves.append(Move((r, c), (r, c+2), self.board, isCastleMove= True))
+        if c + 2 < 8:  # Check if within board bounds
+            if self.board[r][c+1]=='--' and self.board[r][c+2]=='--':
+                if not self.squareUnderAttack(r, c+1) and not self.squareUnderAttack(r, c+2):
+                    moves.append(Move((r, c), (r, c+2), self.board, isCastleMove=True))
         
     def getQueensideCastleMoves(self, r, c, moves):
-        if self.board[r][c-1]=='--' and self.board[r][c-2]=='--' and self.board[r][c-3]:
-            if not self.squareUnderAttack(r, c-1) and not  self.squareUnderAttack(r, c-2):
-                moves.append(Move((r, c), (r, c-2), self.board, isCastleMove= True))
+        if c - 3 >= 0:  # Check if within board bounds
+            if self.board[r][c-1]=='--' and self.board[r][c-2]=='--' and self.board[r][c-3]=='--':
+                if not self.squareUnderAttack(r, c-1) and not self.squareUnderAttack(r, c-2):
+                    moves.append(Move((r, c), (r, c-2), self.board, isCastleMove=True))
 
     '''all moves with checking'''
     def getValidMoves(self): 
