@@ -7,6 +7,9 @@ This is a chess game implemented using **Pygame**. The project includes three ma
 
 - **AI Difficulty:** The difficulty level for playing against AI can be set to **Easy**, **Normal**, or **Hard**.
   
-  ![image](https://github.com/user-attachments/assets/372f7785-178b-4747-a993-714eabefd3ba)
+![image](https://github.com/user-attachments/assets/372f7785-178b-4747-a993-714eabefd3ba)
 
 - **Chess Game:** The main chess game interface where users can play a complete game.
+
+![image](https://github.com/user-attachments/assets/11321921-e436-4b2c-80c5-8b3287db30da)
+
