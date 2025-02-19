@@ -1,9 +1,11 @@
-import pygame as p 
+import pygame as p
+import sys
 import chessEngine
 import chess
 from Model.opponent import Model_makeMove
+from button import Button
 
-WIDTH  = HEIGHT = 512
+WIDTH  = HEIGHT = 640
 DIMENSION = 8  # dimensions of a chess board are 8*8
 SQ_SIZE =HEIGHT // DIMENSION
 MAX_FPS = 15 #for animations later on 
@@ -88,25 +90,24 @@ def chess_to_coords(move):
     return [from_coords, to_coords]
 
 def modelMove(gs,validMoves):
-    ModelMove= Model_makeMove(array_to_fen(gs.board))
-    playerClicks=chess_to_coords(str(ModelMove))
+    if(validMoves != []):
+        ModelMove= Model_makeMove(array_to_fen(gs.board))
+        playerClicks=chess_to_coords(str(ModelMove))
 
-    print(f"Model's move: {ModelMove} aka {playerClicks}")
+        print(f"Model's move: {ModelMove} aka {playerClicks}")
 
-    move = chessEngine.Move(playerClicks[0],playerClicks[1],gs.board)
+        move = chessEngine.Move(playerClicks[0],playerClicks[1],gs.board)
 
-    for i in range(len(validMoves)):
-        if move == validMoves[i]:
-            gs.makeMove(validMoves[i])
-            moveMade = True
-            animate = True 
-            sqSelected =() #reset for next move
-            playerClicks=[]     
-
-def main(): 
-    p.init() 
-    screen = p.display.set_mode((WIDTH, HEIGHT))
-    clock = p.time.Clock()
+        for i in range(len(validMoves)):
+            if move == validMoves[i]:
+                gs.makeMove(validMoves[i])
+                moveMade = True
+                animate = True 
+                sqSelected =() #reset for next move
+                playerClicks=[]  
+def start_Game (screen,clock):
+    p.init()
+    screen.fill((0, 0, 0))
     screen.fill(p.Color("white"))
     gs = chessEngine.GameState()
     print("this is checkmate ", gs.checkMate)
@@ -122,6 +123,8 @@ def main():
         for e in p.event.get():    
             if e.type == p.QUIT: 
                 running = False
+                p.quit()
+                sys.exit()    
             #mouse handler
             elif e.type == p.MOUSEBUTTONDOWN:
                 if not gameOver:
@@ -165,10 +168,12 @@ def main():
                     moveMade = False 
                     animate = False 
 
-        if moveMade: 
+        if moveMade and not gameOver:
+            print("this los checkmators", gs.checkMate)  
             if animate:
                 animateMove(gs.moveLog[-1], screen, gs.board, clock)
             validMoves = gs.getValidMoves()
+            print(validMoves)
             modelMove(gs,validMoves)
             validMoves = gs.getValidMoves()
             moveMade = False
@@ -178,6 +183,7 @@ def main():
         drawGameState(screen, gs,validMoves, sqSelected)
         if gs.checkMate: 
             gameOver = True 
+            print("checkmate Baby")
             if gs.whiteToMove:
                 drawText(screen, 'Black wins by checkmate')
             else : 
@@ -186,7 +192,14 @@ def main():
             gameOver = True 
             drawText(screen , 'Stalemate')                    
         clock.tick(MAX_FPS)
-        p.display.flip()
+        p.display.flip() 
+                   
+def main(): 
+    p.init()
+    clock = p.time.Clock() 
+    screen = p.display.set_mode((WIDTH, HEIGHT))
+    clock = p.time.Clock()
+    main_menu(screen,clock)
 
 def drawText(screen, text):
         font = p.font.SysFont("Helvitica", 32, True, False)
@@ -220,6 +233,7 @@ def highlightSquares (screen, gs, validMoves, sqSelected):
 Responsible for all the graphics within a current game state. 
 '''        
 def drawGameState(screen, gs,validMoves,sqSelected):
+    screen.fill(p.Color("white"))
     drawBoard(screen)
     highlightSquares(screen, gs, validMoves, sqSelected)
     drawPieces (screen , gs.board)
@@ -270,8 +284,101 @@ def animateMove (move, screen, board, clock):
         screen.blit(IMAGES[move.pieceMoved], p.Rect(c*SQ_SIZE,r*SQ_SIZE, SQ_SIZE,SQ_SIZE))
         p.display.flip()
         clock.tick(60)
+        
 
-    
+
+BG = p.image.load("assets/background.jpg")
+def get_font(size): # Returns Press-Start-2P in the desired size
+    return p.font.Font("assets/font.ttf", size)
+
+def main_menu(screen, clock):
+    p.display.set_caption("Menu")
+    while True:
+        screen.blit(BG, (0, 0))
+
+        MENU_MOUSE_POS = p.mouse.get_pos()
+
+        MENU_TEXT = get_font(50).render("MAIN MENU", True, "#b68f40")
+        MENU_RECT = MENU_TEXT.get_rect(center=(320, 100))
+
+        PLAY_BUTTON = Button(image = None, pos=(320, 250), 
+                            text_input="LOCAL PLAY", font=get_font(35), base_color="White", hovering_color="#d7fcd4")
+        OPTIONS_BUTTON = Button(image = None, pos=(320, 400), 
+                            text_input="VERSUS AI", font=get_font(35), base_color="White", hovering_color="#d7fcd4")
+        QUIT_BUTTON = Button(image = None, pos=(320, 550), 
+                            text_input="QUIT ", font=get_font(35), base_color="White", hovering_color="#d7fcd4")
+
+        screen.blit(MENU_TEXT, MENU_RECT)
+
+        for button in [PLAY_BUTTON, OPTIONS_BUTTON, QUIT_BUTTON]:
+            button.changeColor(MENU_MOUSE_POS)
+            button.update(screen)
+        
+        for event in p.event.get():
+            if event.type == p.QUIT:
+                p.quit()
+                sys.exit()
+            if event.type == p.MOUSEBUTTONDOWN:
+                if PLAY_BUTTON.checkForInput(MENU_MOUSE_POS):
+                    start_Game(screen,clock)
+                if OPTIONS_BUTTON.checkForInput(MENU_MOUSE_POS):
+                    ai_menu(screen)
+                if QUIT_BUTTON.checkForInput(MENU_MOUSE_POS):
+                    p.quit()
+                    sys.exit()
+
+        p.display.update()
+
+def ai_menu(screen):
+    # p.display.set_caption("ididb")
+    # BG = p.image.load("assets/Background.jpg")
+    sans = p.image.load("assets/sans.png")
+    napstablook = p.image.load("assets/napstablook.jpeg")
+    mettatone = p.image.load ("assets/mettatone.png")
+    mettatone = p.transform.scale(mettatone, (60,60))
+    napstablook = p.transform.scale(napstablook, (45,45))
+
+    sans = p.transform.scale(sans,(50,50))
+    p.init()
+    while True:
+        screen.fill((0, 0, 0))
+        screen.blit(BG, (0, 0))
+        screen.blit(napstablook, (170,220))
+        screen.blit(mettatone, (150,370))
+        screen.blit(sans, (170,525))
+
+        MENU_MOUSE_POS = p.mouse.get_pos()
+
+        MENU_TEXT = get_font(50).render("Difficulty", True, "#b68f40")
+        MENU_RECT = MENU_TEXT.get_rect(center=(320, 100))
+
+        PLAY_BUTTON = Button(image = None, pos=(320, 250), 
+                            text_input="EASY", font=get_font(35), base_color="White", hovering_color="#d7fcd4")
+        OPTIONS_BUTTON = Button(image = None, pos=(320, 400), 
+                            text_input="NORMAL", font=get_font(35), base_color="White", hovering_color="#d7fcd4")
+        QUIT_BUTTON = Button(image = None, pos=(320, 550), 
+                            text_input="HARD", font=get_font(35), base_color="White", hovering_color="#d7fcd4")
+
+        screen.blit(MENU_TEXT, MENU_RECT)
+
+        for button in [PLAY_BUTTON, OPTIONS_BUTTON, QUIT_BUTTON]:
+            button.changeColor(MENU_MOUSE_POS)
+            button.update(screen)
+        
+        for event in p.event.get():
+            if event.type == p.QUIT:
+                p.quit()
+                sys.exit()  
+            if event.type == p.MOUSEBUTTONDOWN:
+                if PLAY_BUTTON.checkForInput(MENU_MOUSE_POS):
+                    ai_menu()
+                if OPTIONS_BUTTON.checkForInput(MENU_MOUSE_POS):
+                    options()
+                if QUIT_BUTTON.checkForInput(MENU_MOUSE_POS):
+                    p.quit()
+                    sys.exit()
+
+        p.display.update()           
 
 if __name__ == "__main__":        
     main()

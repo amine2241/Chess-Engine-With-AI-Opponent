@@ -286,7 +286,7 @@ class GameState():
             if self.inCheck():
                 moves.remove(moves[i]) 
             self.whiteToMove = not self.whiteToMove #switch back to current 
-            self.undoMove()    #cancels make move
+            self.undoMove()  #cancels make move
             if len(moves)==0 :
                 if self.inCheck(): 
                     self.checkMate= True 

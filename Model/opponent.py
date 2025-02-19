@@ -208,7 +208,7 @@ def test_model():
         print("\n")
 
 def Model_makeMove(board):
-    model = load_model('C:/Users/tsaid/OneDrive/Desktop/ChessAI project/chess_engine/Model/chess_model_final.pt')
+    model = load_model('C:/Users/amine/Desktop/chess_engine/Model/chess_model_final.pt')
     encoder = ChessboardEncoder()
     board= chess.Board(board)
     print(board)
