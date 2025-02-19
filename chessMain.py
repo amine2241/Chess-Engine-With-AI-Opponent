@@ -89,9 +89,9 @@ def chess_to_coords(move):
     
     return [from_coords, to_coords]
 
-def modelMove(gs,validMoves):
+def modelMove(gs,validMoves,difficulty):
     if(validMoves != []):
-        ModelMove= Model_makeMove(array_to_fen(gs.board))
+        ModelMove= Model_makeMove(array_to_fen(gs.board),difficulty)
         playerClicks=chess_to_coords(str(ModelMove))
 
         print(f"Model's move: {ModelMove} aka {playerClicks}")
@@ -105,7 +105,7 @@ def modelMove(gs,validMoves):
                 animate = True 
                 sqSelected =() #reset for next move
                 playerClicks=[]  
-def start_Game (screen,clock):
+def start_Game (screen,clock,local=True,difficulty=0):
     p.init()
     screen.fill((0, 0, 0))
     screen.fill(p.Color("white"))
@@ -168,13 +168,17 @@ def start_Game (screen,clock):
                     moveMade = False 
                     animate = False 
 
-        if moveMade and not gameOver:
+        if moveMade and not gameOver and not local:
             print("this los checkmators", gs.checkMate)  
             if animate:
                 animateMove(gs.moveLog[-1], screen, gs.board, clock)
             validMoves = gs.getValidMoves()
             print(validMoves)
-            modelMove(gs,validMoves)
+            modelMove(gs,validMoves,difficulty)
+            validMoves = gs.getValidMoves()
+            moveMade = False
+            animate = False
+        else:
             validMoves = gs.getValidMoves()
             moveMade = False
             animate = False
@@ -322,14 +326,14 @@ def main_menu(screen, clock):
                 if PLAY_BUTTON.checkForInput(MENU_MOUSE_POS):
                     start_Game(screen,clock)
                 if OPTIONS_BUTTON.checkForInput(MENU_MOUSE_POS):
-                    ai_menu(screen)
+                    ai_menu(screen,clock)
                 if QUIT_BUTTON.checkForInput(MENU_MOUSE_POS):
                     p.quit()
                     sys.exit()
 
         p.display.update()
 
-def ai_menu(screen):
+def ai_menu(screen, clock):
     # p.display.set_caption("ididb")
     # BG = p.image.load("assets/Background.jpg")
     sans = p.image.load("assets/sans.png")
@@ -352,16 +356,16 @@ def ai_menu(screen):
         MENU_TEXT = get_font(50).render("Difficulty", True, "#b68f40")
         MENU_RECT = MENU_TEXT.get_rect(center=(320, 100))
 
-        PLAY_BUTTON = Button(image = None, pos=(320, 250), 
+        EASY_BUTTON = Button(image = None, pos=(320, 250), 
                             text_input="EASY", font=get_font(35), base_color="White", hovering_color="#d7fcd4")
-        OPTIONS_BUTTON = Button(image = None, pos=(320, 400), 
+        NORMAL_BUTTON = Button(image = None, pos=(320, 400), 
                             text_input="NORMAL", font=get_font(35), base_color="White", hovering_color="#d7fcd4")
-        QUIT_BUTTON = Button(image = None, pos=(320, 550), 
+        HARD_BUTTON = Button(image = None, pos=(320, 550), 
                             text_input="HARD", font=get_font(35), base_color="White", hovering_color="#d7fcd4")
 
         screen.blit(MENU_TEXT, MENU_RECT)
 
-        for button in [PLAY_BUTTON, OPTIONS_BUTTON, QUIT_BUTTON]:
+        for button in [EASY_BUTTON, NORMAL_BUTTON, HARD_BUTTON]:
             button.changeColor(MENU_MOUSE_POS)
             button.update(screen)
         
@@ -370,13 +374,13 @@ def ai_menu(screen):
                 p.quit()
                 sys.exit()  
             if event.type == p.MOUSEBUTTONDOWN:
-                if PLAY_BUTTON.checkForInput(MENU_MOUSE_POS):
-                    ai_menu()
-                if OPTIONS_BUTTON.checkForInput(MENU_MOUSE_POS):
-                    options()
-                if QUIT_BUTTON.checkForInput(MENU_MOUSE_POS):
-                    p.quit()
-                    sys.exit()
+                if EASY_BUTTON.checkForInput(MENU_MOUSE_POS):
+                    start_Game(screen,clock,False,0)
+                if NORMAL_BUTTON.checkForInput(MENU_MOUSE_POS):
+                    start_Game(screen,clock,False,1)
+                if HARD_BUTTON.checkForInput(MENU_MOUSE_POS):
+                    start_Game(screen,clock,False,2)
+                    
 
         p.display.update()           
 

@@ -207,8 +207,13 @@ def test_model():
         print(board)
         print("\n")
 
-def Model_makeMove(board):
-    model = load_model('C:/Users/amine/Desktop/chess_engine/Model/chess_model_final.pt')
+def Model_makeMove(board,difficulty):
+    if difficulty == 0:
+        model = load_model('Model/chess_model_easy.pt')
+    if difficulty == 1:
+        model = load_model('Model/chess_model_mid.pt')
+    if difficulty == 2:
+        model = load_model('Model/chess_model_hard.pt')
     encoder = ChessboardEncoder()
     board= chess.Board(board)
     print(board)
